@@ -6,10 +6,12 @@ def main():
     print("Starting asteroids!") #prints to the screen the next few lines
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
+    clock = pygame.time.Clock
+    dt = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return
+                return #these three lines are needed to make the x button work on the window, otherwise you have to hit ctrl+c to exit the program
         screen.fill("black") #fills the screen with a string color
         pygame.display.flip() #updates the screen
     
