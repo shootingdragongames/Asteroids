@@ -9,6 +9,8 @@ from asteroid import Asteroid
 from shot import Shot
 def main():
     pygame.init() #starts pygame
+    score = 0
+    font = pygame.font.Font(None, 36)
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group() 
@@ -45,12 +47,15 @@ def main():
         for asteroid in asteroids:
             for shot in shots:
                 if pygame.sprite.collide_rect(asteroid, shot):
+                    score += 10
                     asteroid.split()
                     shot.kill()
         player.update(dt)
         shots.update(dt)
         for obj in drawable:
             obj.draw(screen)
+        score_text = font.render(f"Score: {score}", True, "white")
+        screen.blit(score_text, (10, 10))
         pygame.display.flip() #updates the screen
     
     
