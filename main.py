@@ -11,6 +11,7 @@ def main():
     pygame.init() #starts pygame
     score = 0
     font = pygame.font.Font(None, 36)
+    game_over = False
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group() 
@@ -34,11 +35,24 @@ def main():
                 return #these three lines are needed to make the x button work on the window, otherwise you have to hit ctrl+c to exit the program
         screen.fill("black") #fills the screen with a string color
         clock.tick(60)
-        updatable.update(dt)
         for asteroid in asteroids:
-            if asteroid.crossed(player):
-                print("Game over!")
-                sys.exit()
+            if asteroid.crossed(player) and player.can_be_hit():
+                if not game_over:
+                    score -= 10
+                    player.last_hit_time = pygame.time.get_ticks() / 1000
+                    player.is_invincible = True
+                    if score < 0:
+                        game_over = True
+                    
+        if game_over:
+            game_over_text = font.render("GAME OVER", True, "red")
+            text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+            screen.blit(game_over_text, text_rect)
+        else:
+            shots.update(dt)
+            player.update(dt)
+            updatable.update(dt)
+
         for sprite in drawable:
             sprite.draw(screen)
         player.draw(screen)
@@ -50,8 +64,7 @@ def main():
                     score += 10
                     asteroid.split()
                     shot.kill()
-        player.update(dt)
-        shots.update(dt)
+        
         for obj in drawable:
             obj.draw(screen)
         score_text = font.render(f"Score: {score}", True, "white")
