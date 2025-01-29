@@ -15,7 +15,7 @@ def draw_menu(screen, title_small_font, title_large_font, menu_font, selected_op
     title = title_large_font.render("ASTEROIDS!", True, "white")
     title_rect = title.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4))
     screen.blit(title, title_rect)
-    options =["PLAY!", "QUIT"]
+    options =["PLAY", "LEVEL SELECT", "QUIT"]
     for i, option in enumerate(options):
         color = "yellow" if i == selected_option else "white"
         text = menu_font.render(option, True, color)
@@ -34,18 +34,56 @@ def menu():
             if event.type == pygame.QUIT:
                 return False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    selected = (selected - 1) % 2
-                elif event.key == pygame.K_DOWN:
-                    selected = (selected + 1) % 2
+                if event.key == pygame.K_w:
+                    selected = (selected - 1) % 3
+                elif event.key == pygame.K_s:
+                    selected = (selected + 1) % 3
                 elif event.key == pygame.K_RETURN:
                     if selected == 0:  # PLAY
                         return True
+                    elif selected == 1: # level select
+                        print("Level select menu (comming soon [tm])")
                     else:  # QUIT
                         return False
         draw_menu(screen, title_small_font, title_large_font, menu_font, selected)
         pygame.display.flip()
         clock.tick(60)
+def draw_level_select(screen, level_font, levels_unlocked, high_score, selected_level=0):
+    screen.fill("black")
+    title = level_font.render("SELECT LEVEL", True, "white")
+    title_rect = title.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    screen.blit(title, title_rect)
+    score_text = level_font.render(f"high score: {high_score}", True, "white")
+    score_rect = score_text.get_rect(center=(SCREEN_WIDTH /2, SCREEN_HEIGHT/4 + 50))
+    screen.blit(score_text, score_rect)
+    level_requirements = {}
+    for level in range(1, 11):
+        if level == 1:
+            level_requirements[level] = 0
+        else:
+            level_requirements[level] = (level - 1) * 100
+    for level in range(11, 21):
+        level_requirements[level] = (level - 10) * 1000
+    for level in range(21, 31):
+        level_requirements[level] = level_requirements[20] + ((level - 20) * 10000)
+    y_spacing = 40 #spacing between levels
+    x_start = SCREEN_WIDTH / 4 # where the level select starts
+    y_start = SCREEN_HEIGHT / 2 # starts lower than the title
+    for level, required_score in level_requirements.items():
+        is_unlocked = high_score >= required_score
+        color = "white" if is_unlocked else "red"
+        if level == selected_level and is_unlocked:
+            color = "yellow"
+        level_text = f"level {level}"
+        if not is_unlocked:
+            level_text += f" (REQUIRES {required_score} points)"
+        text_surface = level_font.render(level_text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.x = x_start
+        text_rect.y = y_start + (level - 1) * y_spacing
+        screen.blit(text_surface, text_rect)
+def level_select(high_score):
+    pass
 
 def game():
     pygame.init() #starts pygame
@@ -114,7 +152,7 @@ def main():
     while True:
         play = menu()
         if play:
-            game()
+             game()
         else:
             break
     pygame.quit()
