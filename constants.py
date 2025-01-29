@@ -12,3 +12,4 @@ SHOT_RADIUS = 5 # how big the bullets are
 PLAYER_SHOOT_SPEED = 505 # how fast to pew-pew
 PLAYER_SHOTCD = 0.3 #in seconds
 PLAYER_INVINCIBLITY_TIME = 1 #in seconds
+ASTEROID_POINTS = 8 # number of vertices on each asteroid, defaulf: 8

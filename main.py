@@ -7,7 +7,47 @@ from circleshape import CircleShape
 from asteroidfield import AsteroidField
 from asteroid import Asteroid
 from shot import Shot
-def main():
+def draw_menu(screen, title_small_font, title_large_font, menu_font, selected_option=0):
+    screen.fill("black")
+    studio_name = title_small_font.render("ShootingDragonGames'", True, "white")
+    studio_rect = studio_name.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 - 60))
+    screen.blit(studio_name, studio_rect)
+    title = title_large_font.render("ASTEROIDS!", True, "white")
+    title_rect = title.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4))
+    screen.blit(title, title_rect)
+    options =["PLAY!", "QUIT"]
+    for i, option in enumerate(options):
+        color = "yellow" if i == selected_option else "white"
+        text = menu_font.render(option, True, color)
+        text_rect = text.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + i * 50))
+        screen.blit(text, text_rect)
+def menu():
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    title_small_font = pygame.font.Font(None, 36)
+    title_large_font = pygame.font.Font(None, 96)
+    menu_font = pygame.font.Font(None, 64)
+    clock = pygame.time.Clock()
+    selected = 0
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % 2
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % 2
+                elif event.key == pygame.K_RETURN:
+                    if selected == 0:  # PLAY
+                        return True
+                    else:  # QUIT
+                        return False
+        draw_menu(screen, title_small_font, title_large_font, menu_font, selected)
+        pygame.display.flip()
+        clock.tick(60)
+
+def game():
     pygame.init() #starts pygame
     score = 0
     font = pygame.font.Font(None, 36)
@@ -70,7 +110,14 @@ def main():
         score_text = font.render(f"Score: {score}", True, "white")
         screen.blit(score_text, (10, 10))
         pygame.display.flip() #updates the screen
-    
+def main():
+    while True:
+        play = menu()
+        if play:
+            game()
+        else:
+            break
+    pygame.quit()
     
     
 
