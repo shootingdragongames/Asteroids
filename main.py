@@ -7,23 +7,32 @@ from circleshape import CircleShape
 from asteroidfield import AsteroidField
 from asteroid import Asteroid
 from shot import Shot
+def setup_screen(fullscreen = False):
+    if fullscreen:
+        return pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+    return pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
 def draw_menu(screen, title_small_font, title_large_font, menu_font, selected_option=0):
     screen.fill("black")
+    actual_width = screen.get_width()
+    actual_height = screen.get_height()
     studio_name = title_small_font.render("ShootingDragonGames'", True, "white")
-    studio_rect = studio_name.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 - 60))
+    studio_rect = studio_name.get_rect(center=(actual_width * MENU_CENTER_X, actual_height * TITLE_HEIGHT))
     screen.blit(studio_name, studio_rect)
     title = title_large_font.render("ASTEROIDS!", True, "white")
-    title_rect = title.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4))
+    title_rect = title.get_rect(center=(actual_width * MENU_CENTER_X, actual_height * STUDIO_HEIGHT))
     screen.blit(title, title_rect)
-    options =["PLAY", "LEVEL SELECT", "QUIT"]
+    #menu options
+    options = ["PLAY", "LEVEL SELECT", "QUIT"]
     for i, option in enumerate(options):
         color = "yellow" if i == selected_option else "white"
         text = menu_font.render(option, True, color)
-        text_rect = text.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + i * 50))
+        text_rect = title.get_rect( center=(actual_width * MENU_CENTER_X, actual_height * MENU_START_HEIGHT + i * MENU_SPACING))
         screen.blit(text, text_rect)
 def menu():
+    global FULLSCREEN
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = setup_screen(FULLSCREEN)
     title_small_font = pygame.font.Font(None, 36)
     title_large_font = pygame.font.Font(None, 96)
     menu_font = pygame.font.Font(None, 64)
@@ -32,15 +41,21 @@ def menu():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return False
+                return False, FULLSCREEN
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_f: #full screen button
+                    FULLSCREEN =  not FULLSCREEN
+                    screen = setup_screen(FULLSCREEN)
+                if event.key == pygame.K_ESCAPE and FULLSCREEN:
+                    FULLSCREEN = False
+                    screen = setup_screen(FULLSCREEN)
                 if event.key == pygame.K_w:
                     selected = (selected - 1) % 3
                 elif event.key == pygame.K_s:
                     selected = (selected + 1) % 3
                 elif event.key == pygame.K_RETURN:
                     if selected == 0:  # PLAY
-                        return True
+                        return True, FULLSCREEN
                     elif selected == 1: # level select
                         print("Level select menu (comming soon [tm])")
                     else:  # QUIT
@@ -85,7 +100,9 @@ def draw_level_select(screen, level_font, levels_unlocked, high_score, selected_
 def level_select(high_score):
     pass
 
-def game():
+def game(fullscreen=False):
+    global FULLSCREEN
+    FULLSCREEN = fullscreen
     pygame.init() #starts pygame
     score = 0
     font = pygame.font.Font(None, 36)
@@ -99,7 +116,7 @@ def game():
     AsteroidField.containers = (updatable,)
     Player.containers = (updatable, drawable)
     asteroid_field = AsteroidField()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # starts a game window with pygame with the varibles set in constrants.py
+    screen = setup_screen(fullscreen)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     print("Starting asteroids!") #prints to the screen the next few lines
     print(f"Screen width: {SCREEN_WIDTH}")
@@ -111,6 +128,13 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return #these three lines are needed to make the x button work on the window, otherwise you have to hit ctrl+c to exit the program
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_f:
+                    FULLSCREEN = not FULLSCREEN
+                    screen = setup_screen(FULLSCREEN)
+                if event.key == pygame.K_ESCAPE and FULLSCREEN:
+                    FULLSCREEN = False
+                    screen = setup_screen(FULLSCREEN)
         screen.fill("black") #fills the screen with a string color
         clock.tick(60)
         for asteroid in asteroids:
@@ -150,9 +174,9 @@ def game():
         pygame.display.flip() #updates the screen
 def main():
     while True:
-        play = menu()
+        play, fullscreen = menu()
         if play:
-             game()
+             game(fullscreen)
         else:
             break
     pygame.quit()

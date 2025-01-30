@@ -1,8 +1,14 @@
+FULLSCREEN = False
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
+MENU_CENTER_X = 0.5 #default:0.5 center horizontally
+STUDIO_HEIGHT = 0.15 #default:0.15 XX% down from top
+TITLE_HEIGHT = 0.25 #default:0.25 XX% down from top
+MENU_START_HEIGHT = 0.5 #default:0.5 XX% down from top
+MENU_SPACING = 50 #default:50 XX pixels between menu items
 ASTEROID_MIN_RADIUS = 20 #how small it can be default: 20
-ASTEROID_KINDS = 3 #how many differnt asteroids there can be default: 3
+ASTEROID_KINDS = 5 #how many differnt asteroids there can be default: 3
 ASTEROID_SPAWN_RATE = 0.8  # seconds default: 0.8
 ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS #handles asteroids default: i wouldnt, if i were you, change the value
 PLAYER_RADIUS = 20 #shh the player is also a circle default: 20
