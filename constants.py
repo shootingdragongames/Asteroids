@@ -1,6 +1,4 @@
 FULLSCREEN = False
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
 
 MENU_CENTER_X = 0.5 #default:0.5 center horizontally
 STUDIO_HEIGHT = 0.15 #default:0.15 XX% down from top

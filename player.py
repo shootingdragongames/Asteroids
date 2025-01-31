@@ -2,10 +2,12 @@
 from circleshape import CircleShape
 from shot import Shot
 import pygame
-from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOTCD, SCREEN_HEIGHT, SCREEN_WIDTH, PLAYER_INVINCIBLITY_TIME
+from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOTCD, PLAYER_INVINCIBLITY_TIME
 class Player(CircleShape):
     shot_cd = 0
-    def __init__(self, x, y):
+    def __init__(self, x, y, screen_width, screen_height):
+        self.screen_width = screen_width
+        self.screen_height = screen_height
         pygame.sprite.Sprite.__init__(self, self.containers)
         CircleShape.__init__(self, x, y, PLAYER_RADIUS)
         self.rotation = 0
@@ -43,14 +45,14 @@ class Player(CircleShape):
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
-        if self.position.x > SCREEN_WIDTH:
+        if self.position.x > self.screen_width:
             self.position.x = 0
         elif self.position.x < 0:
-            self.position.x = SCREEN_WIDTH
-        if self.position.y > SCREEN_HEIGHT:
+            self.position.x = self.screen_width
+        if self.position.y > self.screen_height:
             self.position.y = 0
         elif self.position.y < 0:
-            self.position.y = SCREEN_HEIGHT
+            self.position.y = self.screen_height
 
     def update(self, dt):
         if self.shot_cd > 0:

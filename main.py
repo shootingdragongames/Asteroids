@@ -7,10 +7,23 @@ from circleshape import CircleShape
 from asteroidfield import AsteroidField
 from asteroid import Asteroid
 from shot import Shot
+def debug(screen, font, clock, debug=True):#set to false or delete this function before publishing
+    if debug:
+        fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, (0, 204, 0))
+        screen.blit(fps_text, (10, 40))
+
 def setup_screen(fullscreen = False):
     if fullscreen:
-        return pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
-    return pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        display_info = pygame.display.Info()
+        width = display_info.current_w
+        height = display_info.current_h
+        screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
+    else:
+        width = 800
+        height = 600
+        screen = pygame.display.set_mode((width, height))
+    return screen, width, height
+
 
 def draw_menu(screen, title_small_font, title_large_font, menu_font, selected_option=0):
     screen.fill("black")
@@ -29,10 +42,11 @@ def draw_menu(screen, title_small_font, title_large_font, menu_font, selected_op
         text = menu_font.render(option, True, color)
         text_rect = title.get_rect( center=(actual_width * MENU_CENTER_X, actual_height * MENU_START_HEIGHT + i * MENU_SPACING))
         screen.blit(text, text_rect)
+        
 def menu():
     global FULLSCREEN
     pygame.init()
-    screen = setup_screen(FULLSCREEN)
+    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
     title_small_font = pygame.font.Font(None, 36)
     title_large_font = pygame.font.Font(None, 96)
     menu_font = pygame.font.Font(None, 64)
@@ -45,10 +59,10 @@ def menu():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f: #full screen button
                     FULLSCREEN =  not FULLSCREEN
-                    screen = setup_screen(FULLSCREEN)
+                    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
                 if event.key == pygame.K_ESCAPE and FULLSCREEN:
                     FULLSCREEN = False
-                    screen = setup_screen(FULLSCREEN)
+                    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
                 if event.key == pygame.K_w:
                     selected = (selected - 1) % 3
                 elif event.key == pygame.K_s:
@@ -63,13 +77,16 @@ def menu():
         draw_menu(screen, title_small_font, title_large_font, menu_font, selected)
         pygame.display.flip()
         clock.tick(60)
+
 def draw_level_select(screen, level_font, levels_unlocked, high_score, selected_level=0):
+    screen_width = screen.get_width()
+    screen_height = screen.get_height()
     screen.fill("black")
     title = level_font.render("SELECT LEVEL", True, "white")
-    title_rect = title.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    title_rect = title.get_rect(center=(screen_width / 2, screen_height / 2))
     screen.blit(title, title_rect)
     score_text = level_font.render(f"high score: {high_score}", True, "white")
-    score_rect = score_text.get_rect(center=(SCREEN_WIDTH /2, SCREEN_HEIGHT/4 + 50))
+    score_rect = score_text.get_rect(center=(screen_width / 2, screen_height / 4 + 50))
     screen.blit(score_text, score_rect)
     level_requirements = {}
     for level in range(1, 11):
@@ -82,8 +99,8 @@ def draw_level_select(screen, level_font, levels_unlocked, high_score, selected_
     for level in range(21, 31):
         level_requirements[level] = level_requirements[20] + ((level - 20) * 10000)
     y_spacing = 40 #spacing between levels
-    x_start = SCREEN_WIDTH / 4 # where the level select starts
-    y_start = SCREEN_HEIGHT / 2 # starts lower than the title
+    x_start = screen_width / 4 # where the level select starts
+    y_start = screen_height / 2 # starts lower than the title
     for level, required_score in level_requirements.items():
         is_unlocked = high_score >= required_score
         color = "white" if is_unlocked else "red"
@@ -115,12 +132,12 @@ def game(fullscreen=False):
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable,)
     Player.containers = (updatable, drawable)
-    asteroid_field = AsteroidField()
-    screen = setup_screen(fullscreen)
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    screen, screen_width, screen_height = setup_screen(fullscreen)
+    asteroid_field = AsteroidField(screen.get_width(), screen.get_height())
+    player = Player(screen_width / 2, screen_height / 2, screen_width, screen_height)
     print("Starting asteroids!") #prints to the screen the next few lines
-    print(f"Screen width: {SCREEN_WIDTH}")
-    print(f"Screen height: {SCREEN_HEIGHT}")
+    print(f"Screen width: {screen_width}")
+    print(f"Screen height: {screen_height}")
     clock = pygame.time.Clock()
     running = True
     while running:
@@ -131,12 +148,37 @@ def game(fullscreen=False):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
                     FULLSCREEN = not FULLSCREEN
-                    screen = setup_screen(FULLSCREEN)
+                    o_width = screen_width
+                    o_height = screen_height
+                    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
+                    width_scale = screen_width / o_width
+                    height_scale = screen_height / o_height
+                    for sprite in drawable:
+                        sprite.position.x = int(sprite.position.x * width_scale)
+                        sprite.position.y = int(sprite.position.y * height_scale)
+                    player.position.x = int(player.position.x * width_scale)
+                    player.position.y = int(player.position.y * height_scale)
+                    for shot in shots:
+                        shot.position.x = int(shot.postion.x * width_scale)
+                        shot.position.y = int(shot.position.y * height_scale)
                 if event.key == pygame.K_ESCAPE and FULLSCREEN:
                     FULLSCREEN = False
-                    screen = setup_screen(FULLSCREEN)
+                    o_width = screen_width
+                    o_height = screen_height
+                    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
+                    width_scale = screen_width / o_width
+                    height_scale = screen_height / o_height
+                    for sprite in drawable:
+                        sprite.position.x = int(sprite.position.x * width_scale)
+                        sprite.position.y = int(sprite.position.y * height_scale)
+                    player.position.x = int(player.position.x * width_scale)
+                    player.position.y = int(player.position.y * height_scale)
+                    for shot in shots:
+                        shot.position.x = int(shot.position.x * width_scale)
+                        shot.position.y = int(shot.positon.y * height_scale)
+
         screen.fill("black") #fills the screen with a string color
-        clock.tick(60)
+        debug(screen, font, clock)
         for asteroid in asteroids:
             if asteroid.crossed(player) and player.can_be_hit():
                 if not game_over:
@@ -148,7 +190,7 @@ def game(fullscreen=False):
                     
         if game_over:
             game_over_text = font.render("GAME OVER", True, "red")
-            text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+            text_rect = game_over_text.get_rect(center=(screen_width / 2, screen_height / 2))
             screen.blit(game_over_text, text_rect)
         else:
             shots.update(dt)
@@ -166,9 +208,6 @@ def game(fullscreen=False):
                     score += 10
                     asteroid.split()
                     shot.kill()
-        
-        for obj in drawable:
-            obj.draw(screen)
         score_text = font.render(f"Score: {score}", True, "white")
         screen.blit(score_text, (10, 10))
         pygame.display.flip() #updates the screen
