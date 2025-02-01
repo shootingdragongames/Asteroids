@@ -175,7 +175,7 @@ def game(fullscreen=False):
                     player.position.y = int(player.position.y * height_scale)
                     for shot in shots:
                         shot.position.x = int(shot.position.x * width_scale)
-                        shot.position.y = int(shot.positon.y * height_scale)
+                        shot.position.y = int(shot.position.y * height_scale)
 
         screen.fill("black") #fills the screen with a string color
         debug(screen, font, clock)
