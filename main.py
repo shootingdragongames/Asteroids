@@ -77,7 +77,7 @@ def menu():
         draw_menu(screen, title_small_font, title_large_font, menu_font, selected)
         pygame.display.flip()
         clock.tick(60)
-
+'''
 def draw_level_select(screen, level_font, levels_unlocked, high_score, selected_level=0):
     screen_width = screen.get_width()
     screen_height = screen.get_height()
@@ -116,6 +116,30 @@ def draw_level_select(screen, level_font, levels_unlocked, high_score, selected_
         screen.blit(text_surface, text_rect)
 def level_select(high_score):
     pass
+'''
+def resize(screen_width, screen_height, fullscreen, player, asteroid_field, drawable, shots, asteroids):
+    o_width = screen_width
+    o_height = screen_height
+    screen, n_width, n_height, = setup_screen(fullscreen)
+    w_scale = n_width / o_width
+    h_scale = n_height / o_height
+    for sprite in drawable:
+        sprite.position.x = int(sprite.position.x * w_scale)
+        sprite.position.y = int(sprite.position.y * h_scale)
+    player.position.x = int(player.position.x * w_scale)
+    player.position.y = int(player.position.y * h_scale)
+    for shot in shots:
+        shot.position.x = int(shot.position.x * w_scale)
+        shot.position.y = int(shot.position.y * h_scale)
+    player.screen_width = n_width
+    player.screen_height = n_height
+    asteroid_field.width = n_width
+    asteroid_field.height = n_height
+    for asteroid in asteroids:
+        asteroid.screen_width = n_width
+        asteroid.screen_height = n_height
+    return screen, n_width, n_height
+
 
 def game(fullscreen=False):
     global FULLSCREEN
@@ -148,34 +172,10 @@ def game(fullscreen=False):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
                     FULLSCREEN = not FULLSCREEN
-                    o_width = screen_width
-                    o_height = screen_height
-                    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
-                    width_scale = screen_width / o_width
-                    height_scale = screen_height / o_height
-                    for sprite in drawable:
-                        sprite.position.x = int(sprite.position.x * width_scale)
-                        sprite.position.y = int(sprite.position.y * height_scale)
-                    player.position.x = int(player.position.x * width_scale)
-                    player.position.y = int(player.position.y * height_scale)
-                    for shot in shots:
-                        shot.position.x = int(shot.postion.x * width_scale)
-                        shot.position.y = int(shot.position.y * height_scale)
+                    screen, screen_width, screen_height, = resize(screen_width, screen_height, FULLSCREEN, player, asteroid_field, drawable, shots, asteroids)
                 if event.key == pygame.K_ESCAPE and FULLSCREEN:
                     FULLSCREEN = False
-                    o_width = screen_width
-                    o_height = screen_height
-                    screen, screen_width, screen_height = setup_screen(FULLSCREEN)
-                    width_scale = screen_width / o_width
-                    height_scale = screen_height / o_height
-                    for sprite in drawable:
-                        sprite.position.x = int(sprite.position.x * width_scale)
-                        sprite.position.y = int(sprite.position.y * height_scale)
-                    player.position.x = int(player.position.x * width_scale)
-                    player.position.y = int(player.position.y * height_scale)
-                    for shot in shots:
-                        shot.position.x = int(shot.position.x * width_scale)
-                        shot.position.y = int(shot.position.y * height_scale)
+                    screen, screen_width, screen_height, = resize(screen_width, screen_height, FULLSCREEN, player, asteroid_field, drawable, shots, asteroids)
 
         screen.fill("black") #fills the screen with a string color
         debug(screen, font, clock)
